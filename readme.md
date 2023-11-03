@@ -25,18 +25,18 @@ This project is an example implementing web using SpringFramework. This reposito
 
 3. Run the development server
 
-## Features / 기능
+## Features
 
 -   Free
 -   Notice
 -   Board
 -   Member
 
-## Tech Stack / 기술 스택
+## Tech Stack & Version
 
 -   SpringFramework 5.3.20
 -   Jsp/Servlet
--   MariaDB
+-   MariaDB 8.0
 
 ## License / 라이센스
 
