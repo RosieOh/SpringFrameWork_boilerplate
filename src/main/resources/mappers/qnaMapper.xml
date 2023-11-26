@@ -1,11 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="qna">
-    <!--    공지사항 목록 출력-->
-    <!--    <select id="qnaList" resultType="kr.co.teaspoon.dto.Qna">-->
-    <!--        select * from qnalist1;-->
-    <!--    </select>-->
-    <select id="qnaList" resultType="kr.co.teaspoon.dto.Qna">
+    <select id="qnaList" resultType="kr.ed.haebeop.domain.Qna">
         <![CDATA[
         select * from qnalist1
         ]]>
@@ -26,20 +22,16 @@
         ]]>
     </select>
     <!-- 리스트에 댓글 수 불러오기 -->
-    <select id="commentCount" resultType="kr.co.teaspoon.dto.Qna">
+    <select id="commentCount" resultType="kr.ed.haebeop.domain.Qna">
         SELECT q.qno, COUNT(qc.cno) AS count
         FROM qna q
             LEFT JOIN qna_comment qc ON q.qno = qc.qno
         GROUP BY q.qno ORDER BY q.resdate;
     </select>
     <!--    공지사항 글 상세보기-->
-    <select id="qnaDetail" resultType="kr.co.teaspoon.dto.Qna">
+    <select id="qnaDetail" resultType="kr.ed.haebeop.domain.Qna">
         select * from qnalist1 where qno=#{qno}
     </select>
-    <!--    글 수 카운트-->
-    <!--    <select id="totalCount" resultType="integer">-->
-    <!--        select count(*) from qnalist1-->
-    <!--    </select>-->
     <select id="totalCount" resultType="integer">
         <![CDATA[
         select count(*) from qnalist1
@@ -62,7 +54,7 @@
         INSERT INTO qna(title, content, author, lev, par,secret) VALUES(#{title}, #{content}, #{author}, #{lev},#{par}, default);
     </insert>
     <!--    답변 많은 순서 list -->
-    <select id = "selectBest" resultType="kr.co.teaspoon.dto.Qna">
+    <select id = "selectBest" resultType="kr.ed.haebeop.domain.Qna">
         SELECT title, par, qno, MAX(count) as count
         FROM (
             SELECT a.title, a.par, a.qno, COUNT(*) as count,
@@ -75,7 +67,7 @@
         ORDER BY count DESC LIMIT 5;
     </select>
     <!--    조회수 높은 순서 list-->
-    <select id = "selectVisit" resultType="kr.co.teaspoon.dto.Qna">
+    <select id = "selectVisit" resultType="kr.ed.haebeop.domain.Qna">
         SELECT title, qno, visit FROM qna ORDER BY visit desc LIMIT 5
     </select>
     <!--공지사항 글 업데이트-->
@@ -102,7 +94,7 @@
         update qna set visit = visit+1 where qno=#{qno}
     </update>
     <!-- 댓글 리스트-->
-    <select id="qnaCommentList" resultType="kr.co.teaspoon.dto.QnaComment">
+    <select id="qnaCommentList" resultType="kr.ed.haebeop.domain.QnaComment">
         select * from qnacommentlist where qno=#{qno}
     </select>
     <!--    댓글 삽입-->
@@ -135,7 +127,7 @@
             </trim>
         </where>
     </sql>
-    <select id="getListWithPaging" resultType="kr.co.teaspoon.dto.Qna">
+    <select id="getListWithPaging" resultType="kr.ed.haebeop.domain.Qna">
         <![CDATA[
         select * from qnalist1
         ]]>

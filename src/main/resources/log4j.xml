@@ -9,11 +9,19 @@
         </layout>
     </appender>
 
+    <logger name="kr.ed.haebeop.config">
+        <level value="info" />
+    </logger>
+
     <logger name="kr.ed.haebeop.controller">
         <level value="info" />
     </logger>
 
     <logger name="kr.ed.haebeop.domain">
+        <level value="info" />
+    </logger>
+
+    <logger name="kr.ed.haebeop.exception">
         <level value="info" />
     </logger>
 
@@ -34,6 +42,10 @@
     </logger>
 
     <logger name="kr.ed.haebeop.test">
+        <level value="info" />
+    </logger>
+
+    <logger name="kr.ed.haebeop.web">
         <level value="info" />
     </logger>
 

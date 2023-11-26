@@ -1,0 +1,190 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="fileboard"> <!-- 수정된 부분 -->
+
+    <select id="fileList" resultType="kr.ed.haebeop.domain.FileDTO">
+        select * from fileobj order by uploaddate desc, no asc
+    </select>
+    <!-- 파일 목록 -->
+    <select id="fileboardList" resultType="kr.ed.haebeop.domain.FileBoard">
+        <![CDATA[
+    select * from fileboard
+    ]]>
+        <where>
+            <if test="searchType != null">
+                <choose>
+                    <when test="searchType == 'title'.toString()">
+                        title LIKE concat('%', #{searchKeyword}, '%')
+                    </when>
+                </choose>
+            </if>
+        </where>
+        <![CDATA[
+    order by regdate desc LIMIT #{postStart}, #{postCount}
+    ]]>
+    </select>
+    <!-- 파일 목록 -->
+    <select id="fileGroupList" resultType="kr.ed.haebeop.domain.FileDTO">
+        select * from fileobj where postno=#{postNo}
+    </select>
+    <!-- 파일 상세보기 -->
+    <select id="fileDetail" resultType="kr.ed.haebeop.domain.FileDTO">
+        select * from fileobj where no=#{no}
+    </select>
+    <!-- 파일 수 카운트 -->
+    <select id="totalFileCount" resultType="integer">
+        select count(*) from fileobj
+    </select>
+    <!-- 파일 추가 -->
+    <insert id="fileInsert">
+        insert into fileobj values (default, #{postNo}, #{saveFolder}, #{originFile}, #{saveFile}, #{fileSize}, #{uploadDate})
+    </insert>
+    <!-- 글번호가 같은 파일 제거 -->
+    <delete id="fileDelete">
+        delete from fileobj where postno=#{postNo}
+    </delete>
+    <!-- 하나의 파일만 제거 -->
+    <delete id="fileObjDelete">
+        delete from fileobj where no=#{no}
+    </delete>
+    <!-- 파일 자료 상세보기 -->
+    <select id="fileboardDetail" resultType="kr.ed.haebeop.domain.FileBoard">
+        select * from fileboard where postno=#{postNo}
+    </select>
+    <!-- 파일 자료 상세보기 -->
+    <select id="latestFileboard" resultType="kr.ed.haebeop.domain.FileBoard">
+        select * from fileboard order by postno desc limit 0,1
+    </select>
+    <!-- 파일 자료 추가 -->
+    <insert id="fileboardInsert">
+        insert into fileboard values (default, #{title}, #{content}, default, default)
+    </insert>
+    <!-- 파일 자료 수정하기 -->
+    <update id="fileboardEdit">
+        update fileboard set title=#{title}, content=#{content} where postno=#{postNo}
+    </update>
+
+    <insert id="fileUpdate">
+        <choose>
+            <when test="originFile != null and originFile.trim() != ''">
+                insert into fileobj values (default, #{postNo}, #{saveFolder}, #{originFile}, #{saveFile}, #{fileSize}, #{uploadDate})
+            </when>
+        </choose>
+    </insert>
+
+    <!-- 파일 자료 삭제 -->
+    <delete id="fileboardDelete">
+        delete from fileboard where postno=#{postno}
+    </delete>
+    <!-- 파일 자료 상세보기시 읽은 횟수 증가 -->
+    <update id="countUp">
+        update fileboard set visited=visited+1 where postno=#{postNo}
+    </update>
+
+    <!-- 검색창 (제목, 내용) -->
+    <sql id="criteria">
+        <where>
+            <trim prefixOverrides="OR">
+                <foreach item="type" collection="typeArr">
+                    <trim prefixOverrides="OR">
+                        <choose>
+                            <when test="type == 'T'.toString()">
+                                title LIKE '%' || #{keyword} || '%'
+                            </when>
+                            <when test="type == 'C'.toString()">
+                                content LIKE '%' || #{keyword} || '%'
+                            </when>
+                        </choose>
+                    </trim>
+                </foreach>
+            </trim>
+        </where>
+    </sql>
+
+    <!-- 글 수 카운트 -->
+    <select id="totalCount" resultType="integer">
+        <![CDATA[
+    select count(*) from fileboard
+       ]]>
+        <where>
+            <if test="searchType != null">
+                <choose>
+                    <when test="searchType == 'title'.toString()">
+                        title LIKE concat('%', #{searchKeyword}, '%')
+                    </when>
+                    <when test="searchType == 'content'.toString()">
+                        content LIKE concat('%', #{searchKeyword}, '%')
+                    </when>
+                </choose>
+            </if>
+        </where>
+    </select>
+
+    <!-- 페이징 처리 -->
+    <select id="getListWithPaging" resultType="kr.ed.haebeop.domain.FileBoard">
+        <![CDATA[
+        select * from fileboard
+        ]]>
+        <include refid="criteria" />
+        <![CDATA[
+        ORDER BY regdate DESC LIMIT ((#{pageNum} - 1) * #{amount}), #{amount}
+        ]]>
+    </select>
+</mapper>
+
+<!--
+<select> 쿼리 - 파일 목록 가져오기
+
+fileList: 파일 목록을 최신 날짜 및 번호 순으로 가져오는 쿼리입니다.
+<select> 쿼리 - 파일 자료 목록 가져오기
+
+fileboardList: 파일 자료 목록을 검색 조건에 따라 가져오는 쿼리입니다. 검색 조건이 'title'인 경우, 제목에 대한 부분 검색이 수행됩니다.
+<select> 쿼리 - 파일 그룹 목록 가져오기
+
+fileGroupList: 특정 게시물에 연결된 파일 목록을 가져오는 쿼리입니다.
+<select> 쿼리 - 파일 상세 정보 가져오기
+
+fileDetail: 특정 파일의 상세 정보를 가져오는 쿼리입니다.
+<select> 쿼리 - 파일 수 카운트
+
+totalFileCount: 파일 개수를 세는 쿼리입니다.
+<insert> 쿼리 - 파일 추가
+
+fileInsert: 파일을 추가하는 쿼리입니다.
+<delete> 쿼리 - 글번호에 해당하는 파일 제거
+
+fileDelete: 특정 게시물에 연결된 모든 파일을 제거하는 쿼리입니다.
+<delete> 쿼리 - 파일 제거
+
+fileObjDelete: 특정 파일을 제거하는 쿼리입니다.
+<select> 쿼리 - 파일 자료 상세 정보 가져오기
+
+fileboardDetail: 파일 자료의 상세 정보를 가져오는 쿼리입니다.
+<select> 쿼리 - 최신 파일 자료 가져오기
+
+latestFileboard: 최신 파일 자료 하나를 가져오는 쿼리입니다.
+<insert> 쿼리 - 파일 자료 추가
+
+fileboardInsert: 파일 자료를 추가하는 쿼리입니다.
+<update> 쿼리 - 파일 자료 수정
+
+fileboardEdit: 파일 자료의 제목과 내용을 수정하는 쿼리입니다.
+<insert> 쿼리 - 파일 업데이트 (조건부)
+
+fileUpdate: 원본 파일이 비어있지 않은 경우 파일을 추가하는 쿼리입니다.
+<delete> 쿼리 - 파일 자료 삭제
+
+fileboardDelete: 파일 자료를 삭제하는 쿼리입니다.
+<update> 쿼리 - 파일 자료 조회수 증가
+
+countUp: 파일 자료의 조회수를 1 증가시키는 쿼리입니다.
+<sql> - 검색 조건
+
+criteria: 검색 조건 (제목 또는 내용)을 만드는 SQL 코드입니다. typeArr 배열을 사용하여 검색 조건을 선택하며, %를 사용한 부분 검색이 수행됩니다.
+<select> 쿼리 - 파일 자료 수 카운트
+
+totalCount: 파일 자료의 개수를 세는 쿼리입니다. 제목 또는 내용에 대한 검색 조건을 포함합니다.
+<select> 쿼리 - 페이징 처리된 목록 가져오기
+
+getListWithPaging: 페이징 처리된 파일 자료 목록을 가져오는 쿼리입니다. 검색 조건 및 페이징 정보를 적용합니다.
+-->

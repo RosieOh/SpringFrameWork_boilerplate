@@ -1,11 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!DOCTYPE mapper PUBLIC
+        "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="free">
-    <!-- 자유게시판 목록을 검색하는 SQL SELECT 문 -->
-    <select id="freeList" resultType="kr.co.teaspoon.dto.Free">
+    <!-- 자유게시판 목록 -->
+    <select id="freeList" resultType="kr.ed.haebeop.domain.Free">
         <![CDATA[
-		select * from free
-		]]>
+        select * from free
+        ]]>
         <where>
             <if test="searchType != null">
                 <choose>
@@ -19,18 +21,17 @@
             </if>
         </where>
         <![CDATA[
-		order by regdate desc LIMIT #{postStart}, #{postCount}
-		]]>
+        order by regdate desc LIMIT #{postStart}, #{postCount}
+        ]]>
     </select>
-    <!-- 글 상세보기를 검색하는 SQL SELECT 문 -->
-    <select id="freeDetail" resultType="kr.co.teaspoon.dto.Free">
-        select * from free where bno=#{bno}
+    <select id="freeDetail" resultType="kr.ed.haebeop.domain.Free">
+        select * from free where fno=#{fno}
     </select>
-    <!-- 글 수 카운트를 검색하는 SQL SELECT 문 -->
+    <!-- 글 수 카운트 -->
     <select id="totalCount" resultType="integer">
         <![CDATA[
-		select count(*) from free
-		]]>
+        select count(*) from free
+        ]]>
         <where>
             <if test="searchType != null">
                 <choose>
@@ -44,36 +45,35 @@
             </if>
         </where>
     </select>
-    <!-- 자유게시판에 글을 추가하는 SQL INSERT 문 -->
     <insert id="freeInsert">
         insert into free values (default, #{title}, #{content}, default, 0, #{id}, 0)
     </insert>
-    <!-- 자유게시판에서 글을 삭제하는 SQL DELETE 문 -->
     <delete id="freeDelete">
-        delete from free where bno=#{bno}
+        delete from free where fno=#{fno}
     </delete>
-    <!-- 자유게시판의 글을 수정하는 SQL UPDATE 문 -->
     <update id="freeEdit">
-        update free set title=#{title}, content=#{content} where bno=#{bno}
+        update free set title=#{title}, content=#{content} where fno=#{fno}
     </update>
-    <!-- 방문수를 증가시키는 SQL UPDATE 문 -->
-    <update id="visitCount">
-        update free set visited=visited+1 where bno=#{bno}
+    <update id="hitsUp">
+        update free set visited=visited+1 where fno=#{fno}
     </update>
-    <!-- 상위 추천 5개 글을 검색하는 SQL SELECT 문 -->
-    <select id="freeBestRecList" resultType="kr.co.teaspoon.dto.Free">
+    <update id="hitsDown">
+        update free set visited=visited-1 where fno=#{fno}
+    </update>
+    <!-- 상위 추천 5개 -->
+    <select id="freeBestRecList" resultType="kr.ed.haebeop.domain.Free">
         select * from free order by rec desc limit 5
     </select>
-    <!-- 상위 댓글 5개 글을 검색하는 SQL SELECT 문 -->
-    <select id="freeBestCmtList" resultType="kr.co.teaspoon.dto.Free">
-        SELECT f.bno, f.title, COUNT(c.bno) AS comment_count
+    <!-- 상위 댓글 5개 -->
+    <select id="freeBestCmtList" resultType="kr.ed.haebeop.domain.Free">
+        SELECT f.fno, f.title, COUNT(c.fno) AS comment_count
         FROM free f
-                 JOIN free_comment c ON f.bno = c.bno
-        GROUP BY f.bno, f.title, f.content
+                 JOIN free_comment c ON f.fno = c.fno
+        GROUP BY f.fno, f.title, f.content
         ORDER BY comment_count DESC
             LIMIT 5;
     </select>
-    <!-- 동적 SQL 조각을 정의하는 SQL 조각 정의 부분 -->
+
     <sql id="criteria">
         <where>
             <trim prefixOverrides="OR">
@@ -92,57 +92,61 @@
             </trim>
         </where>
     </sql>
-    <!-- 페이징을 적용하여 목록을 검색하는 SQL SELECT 문 -->
-    <select id="getListWithPaging" resultType="kr.co.teaspoon.dto.Free">
+    <select id="getListWithPaging" resultType="kr.ed.haebeop.domain.Free">
         <![CDATA[
-		select * from free
-		]]>
+        select * from free
+        ]]>
         <include refid="criteria" />
         <![CDATA[
-		ORDER BY resdate DESC LIMIT ((#{pageNum} - 1) * #{amount}), #{amount}
-		]]>
+        ORDER BY resdate DESC LIMIT ((#{pageNum} - 1) * #{amount}), #{amount}
+        ]]>
     </select>
-    <!-- 댓글 목록을 검색하는 SQL SELECT 문 -->
-    <select id="freeCommentList" resultType="kr.co.teaspoon.dto.FreeComment">
-        select * from freecommentlist where bno=#{bno}
+
+    <!-- 댓글 리스트-->
+    <select id="freeCommentList" resultType="kr.ed.haebeop.domain.FreeComment">
+        select * from free_comment where fno=#{fno}
     </select>
-    <!-- 댓글을 추가하는 SQL INSERT 문 -->
+    <!-- 댓글 삽입-->
     <insert id="commentInsert">
-        INSERT INTO free_comment(bno, author, content) VALUES(#{bno}, #{author}, #{content});
+        INSERT INTO freecommentlist(fno, author, content) VALUES(#{fno}, #{author}, #{content});
     </insert>
-    <!-- 댓글을 삭제하는 SQL DELETE 문 -->
+
+    <!-- 댓글 삭제-->
     <delete id="commentDelete">
-        delete from free_comment where cno=#{cno}
+        delete from freecommentlist where cno=#{cno}
     </delete>
-    <!-- 각 항목에 대한 댓글 수를 계산하는 SQL SELECT 문 -->
-    <select id="commentCount" resultType="kr.co.teaspoon.dto.Free">
-        SELECT f.bno, COUNT(fc.bno) AS count
+
+    <!--    리스트에 댓글 수 불러오기-->
+    <select id="commentCount" resultType="kr.ed.haebeop.domain.Free">
+        SELECT f.fno, COUNT(fc.fno) AS count
         FROM free f
-            LEFT JOIN free_comment fc ON f.bno = fc.bno
-        GROUP BY f.bno;
+            LEFT JOIN free_comment fc ON f.fno = fc.fno
+        GROUP BY f.fno;
     </select>
-    <!-- 항목에 대한 추천을 검색하는 SQL SELECT 문 -->
-    <select id="findReco" resultType="kr.co.teaspoon.dto.Reco">
-        select * from reco where bno=#{bno} and id=#{id}
+
+
+    <select id="findRecord" parameterType="map" resultType="kr.ed.haebeop.domain.Record">
+        SELECT * FROM record WHERE fno = #{fno} AND id = #{id}
     </select>
-    <!-- 회원에 대한 추천을 검색하는 SQL SELECT 문 -->
-    <select id="memberFindReco" resultType="kr.co.teaspoon.dto.Reco">
-        select * from reco where bno=#{bno} and id=#{id}
+
+    <select id="memberFindRecord" resultType="kr.ed.haebeop.domain.Record">
+        select * from record where fno=#{fno} and id=#{id}
     </select>
-    <!-- 항목에 대한 추천을 추가하는 SQL INSERT 문 -->
-    <insert id="insertReco">
-        insert into reco(bno, id, flag) values(#{bno}, #{id}, 1)
+
+    <insert id="insertRecord">
+        insert into record(fno, id, flag) values(#{fno}, #{id}, 1)
     </insert>
-    <!-- 항목에 대한 추천을 제거하는 SQL DELETE 문 -->
-    <delete id="deleteReco">
-        delete from reco where bno=#{bno} and id=#{id}
+
+    <delete id="deleteRecord">
+        delete from record where fno=#{fno} and id=#{id}
     </delete>
-    <!-- 항목에 대한 추천을 증가시키는 SQL UPDATE 문 -->
-    <update id="increaseRec">
-        update free set rec=rec+1 where bno=#{bno}
+
+    <!-- 게시글 추천 -->
+    <update id="increaseRecord">
+        update free set rec=rec+1 where fno=#{fno}
     </update>
-    <!-- 항목에 대한 추천을 감소시키는 SQL UPDATE 문 -->
-    <update id="decreaseRec">
-        update free set rec=rec-1 where bno=#{bno}
+    <!-- 게시글 추천 취소 -->
+    <update id="decreaseRecord">
+        update free set rec=rec-1 where fno=#{fno}
     </update>
 </mapper>

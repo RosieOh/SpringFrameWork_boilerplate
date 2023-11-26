@@ -1,0 +1,146 @@
+.snsQuick {
+    position: fixed;
+    right: 1em;
+    bottom: 1em;
+    z-index: 9;
+}
+
+.snsQuick .snsInner,
+.snsQuick .btn {
+    position: relative;
+    width: 3em;
+    height: 3em;
+    border-radius: 50%;
+}
+
+.snsQuick .top_btn {
+    margin-top: 1em;
+    background: #fff;
+    border: 2px solid #026725;
+    color: #026725;
+    transition: 0.2s;
+}
+
+.snsQuick .top_btn .tt {
+    display: block;
+    font-size: 0.688em;
+    font-weight: 700;
+}
+
+.snsQuick .top_btn:hover {
+    background: #026725;
+    color: #fff;
+}
+
+.snsQuick .sns_btn {
+    position: absolute;
+    left: 0;
+    top: 0;
+    background: #026725;
+    color: #fff;
+}
+
+.snsQuick .sns {
+    position: absolute;
+    left: 50%;
+    bottom: 5em;
+    transform: translateX(-50%);
+    opacity: 0;
+    visibility: hidden;
+    transition: 0.1s;
+}
+
+.snsQuick .sns .list {
+    display: block;
+}
+
+.snsQuick .sns .list > li > a {
+    position: relative;
+    width: 2.5em;
+    height: 2.5em;
+    border: 1px solid #ddd;
+    margin-bottom: 0.375em;
+    background: #fff;
+    border-radius: 100%;
+    transition: 0.3s;
+}
+
+.snsQuick .sns .list > li > a .tt {
+    position: absolute;
+    top: 50%;
+    right: calc(100% + 0.5em);
+    padding: 0.375em 1em;
+    background: #222;
+    border-radius: 6em;
+    font-size: 0.813em;
+    color: #fff;
+    white-space: nowrap;
+    transform: translateY(-50%);
+    display: none;
+}
+
+.snsQuick .sns .list > li > a .xi {
+    font-size: 1em;
+}
+
+.snsQuick .sns .list > li > a:hover {
+    background: #026725;
+    border-color: #026725;
+    color: #fff;
+}
+
+.snsQuick .sns .list > li > a:hover .tt {
+    display: block;
+}
+
+.snsQuick .snsInner.on .sns {
+    opacity: 1;
+    visibility: visible;
+}
+
+.snsQuick .sns .list > li:first-child > a {
+    background: #026725;
+    border-color: #026725;
+    color: #fff;
+}
+
+.snsQuick .sns .list > li:first-child > a .tt {
+    display: block;
+}
+
+.circleAni {
+    position: absolute;
+    width: 2em;
+    height: 2em;
+    border: 1px solid #026725;
+    left: -1px;
+    top: -1px;
+    opacity: 0;
+    border-radius: 50%;
+    animation-duration: 3s;
+    animation-iteration-count: infinite;
+}
+
+.circleAni.c1 {
+    animation-name: circleAni;
+}
+
+.circleAni.c2 {
+    animation-name: circleAni;
+    animation-delay: 1s;
+}
+
+.circleAni.c3 {
+    animation-name: circleAni;
+    animation-delay: 2s;
+}
+
+@keyframes circleAni {
+    0% {
+        opacity: 0.7;
+    }
+    100% {
+        opacity: 0;
+        transform: scale(1.8, 1.8);
+    }
+}

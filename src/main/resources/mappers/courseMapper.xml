@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.ed.haebeop.persistence.CourseMapper">
+    <select id="getCourseList" resultType="kr.ed.haebeop.domain.Course">
+        <![CDATA[
+        select * from course
+        ]]>
+        <where>
+            <if test="searchType != null">
+                <choose>
+                    <when test="searchType == 'title'.toString()">
+                        course_name LIKE concat('%', #{searchKeyword}, '%')
+                    </when>
+                    <when test="searchType == 'content'.toString()">
+                        content LIKE concat('%', #{searchKeyword}, '%')
+                    </when>
+                </choose>
+            </if>
+        </where>
+        <![CDATA[
+        order by cno desc LIMIT #{postStart}, #{postCount}
+        ]]>
+    </select>
+
+    <select id="courseList" resultType="kr.ed.haebeop.domain.Course">
+        select * from course
+    </select>
+
+    <!-- 신규 강의 3개 -->
+    <select id="newCourses" resultType="kr.ed.haebeop.domain.Course">
+        select * from course order by cno desc limit 3;
+    </select>
+
+    <select id="getCourse" resultType="kr.ed.haebeop.domain.Course">
+        select * from course where cno = #{cno }
+    </select>
+    <insert id="insertCourse">
+        INSERT INTO course VALUES(DEFAULT, #{course_name}, #{price}, #{start_date}, #{end_date},
+                                  #{total_num}, #{curr_num}, #{teacher_name}, #{content},
+                                  #{book_name}, #{book_price}, #{imgsrc1}, #{imgsrc2})
+    </insert>
+    <update id="updateCourse">
+        UPDATE course SET course_name = #{course_name} WHERE cno = #{cno}
+    </update>
+    <delete id="deleteCourse">
+        DELETE FROM course WHERE cno = #{cno}
+    </delete>
+
+    <!-- 글 수 카운트 -->
+    <select id="countCourse" resultType="integer">
+        <![CDATA[
+        select count(*) from course
+        ]]>
+        <where>
+            <if test="searchType != null">
+                <choose>
+                    <when test="searchType == 'title'.toString()">
+                        course_name LIKE concat('%', #{searchKeyword}, '%')
+                    </when>
+                    <when test="searchType == 'content'.toString()">
+                        content LIKE concat('%', #{searchKeyword}, '%')
+                    </when>
+                </choose>
+            </if>
+        </where>
+    </select>
+
+    <insert id="insertEnroll">
+        INSERT INTO enroll VALUES(DEFAULT, #{cno }, #{id }, DEFAULT, DEFAULT, #{enroll_price },#{book_name }, DEFAULT)
+    </insert>
+    <!-- 등록할 때 강의 테이블의 현재 신청 인원 +1 추가-->
+    <update id="updateStudentNumber">
+        update course set curr_num =1+curr_num where cno=#{cno }
+    </update>
+    <update id="rollbackStudentNum">
+        update course set curr_num =curr_num-1 where cno=#{cno }
+    </update>
+    <!-- 수강등록 테이블에 해당 회원의 등록 여부 확인 -->
+    <select id="isEnroll" resultType="kr.ed.haebeop.domain.Enroll">
+        select * from enroll where id = #{id } and cno=#{cno}
+    </select>
+    <!-- 마이페이지에서 회원의 수강등록 현황 보기-->
+    <select id="getEnrollList" resultType="kr.ed.haebeop.domain.Enroll">
+        SELECT c.cno, c.course_name, c.start_date, c.end_date, c.imgsrc1, e.eno, e.id, e.complete, u.name, e.cancel
+        FROM course c
+                 INNER JOIN enroll e ON c.cno = e.cno
+                 INNER JOIN member u ON e.id = u.id
+        WHERE u.id = #{id } and e.complete = #{complete }
+    </select>
+    <update id="complete">
+        update enroll set complete =1 where eno=#{eno }
+    </update>
+    <update id="cancel">
+        update enroll set cancel =1 where eno=#{eno }
+    </update>
+    <select id="getMemberName" resultType="kr.ed.haebeop.domain.Member">
+        select name from member where id = #{id };
+    </select>
+    <select id="enrollList" resultType="kr.ed.haebeop.domain.Enroll">
+        <![CDATA[
+        SELECT e.eno, e.cno, c.course_name, u.name,e.id, e.complete, e.book, e.enroll_price, e.cancel
+        FROM enroll e INNER JOIN course c ON e.cno = c.cno INNER JOIN member u ON e.id = u.id
+        ]]>
+        <where>
+            <if test="searchType != null">
+                <choose>
+                    <when test="searchType == 'title'.toString()">
+                        course_name LIKE concat('%', #{searchKeyword}, '%')
+                    </when>
+                    <when test="searchType == 'content'.toString()">
+                        name LIKE concat('%', #{searchKeyword}, '%')
+                    </when>
+                </choose>
+            </if>
+        </where>
+        <![CDATA[
+        order by e.eno desc LIMIT #{postStart}, #{postCount}
+        ]]>
+    </select>
+    <select id="cancelList" resultType="kr.ed.haebeop.domain.Enroll">
+        <![CDATA[
+        SELECT e.eno, e.cno, c.course_name, u.name,e.id, e.complete, e.book, e.enroll_price, e.cancel, u.pt
+        FROM enroll e INNER JOIN course c ON e.cno = c.cno INNER JOIN member u ON e.id = u.id where e.cancel=1
+        ]]>
+        <where>
+            <if test="searchType != null">
+                <choose>
+                    <when test="searchType == 'title'.toString()">
+                        course_name LIKE concat('%', #{searchKeyword}, '%')
+                    </when>
+                    <when test="searchType == 'content'.toString()">
+                        name LIKE concat('%', #{searchKeyword}, '%')
+                    </when>
+                </choose>
+            </if>
+        </where>
+        <![CDATA[
+        order by e.eno desc LIMIT #{postStart}, #{postCount}
+        ]]>
+    </select>
+    <delete id="enrollDelete">
+        DELETE FROM enroll WHERE eno =#{eno }
+    </delete>
+    <select id="countEnroll" resultType="integer">
+        <![CDATA[
+        SELECT COUNT(*) FROM enroll e
+            INNER JOIN course c ON e.cno = c.cno INNER JOIN member u ON e.id = u.id
+        ]]>
+        <where>
+            <if test="searchType != null">
+                <choose>
+                    <when test="searchType == 'title'.toString()">
+                        course_name LIKE concat('%', #{searchKeyword}, '%')
+                    </when>
+                    <when test="searchType == 'name'.toString()">
+                        name LIKE concat('%', #{searchKeyword}, '%')
+                    </when>
+                </choose>
+            </if>
+        </where>
+    </select>
+    <select id="countCancel" resultType="integer">
+        <![CDATA[
+        SELECT COUNT(*) FROM enroll e
+            INNER JOIN course c ON e.cno = c.cno INNER JOIN member u ON e.id = u.id WHERE e.cancel =1
+        ]]>
+        <where>
+            <if test="searchType != null">
+                <choose>
+                    <when test="searchType == 'title'.toString()">
+                        course_name LIKE concat('%', #{searchKeyword}, '%')
+                    </when>
+                    <when test="searchType == 'name'.toString()">
+                        name LIKE concat('%', #{searchKeyword}, '%')
+                    </when>
+                </choose>
+            </if>
+        </where>
+    </select>
+    <update id="updateMemberPoint">
+        UPDATE member SET pt = #{pt } WHERE id =#{id }
+    </update>
+</mapper>

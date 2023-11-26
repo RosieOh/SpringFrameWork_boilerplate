@@ -1,0 +1,19 @@
+.img {position:relative; display:flex; align-items:flex-end; justify-content:flex-end;}
+.ani {position:absolute;}
+.ani1 {animation:mc3_img1 10s infinite linear;}
+@keyframes mc3_img1 {
+    0% {transform:translate(0,0) rotate(0deg) scale(1);}
+    50% {transform:translate(-50px,0) rotate(10deg) scale(.95);}
+    100% {transform:translate(0,0) rotate(0deg) scale(1);}
+}
+.ani2 {animation:mc3_img2 5s infinite;}
+@keyframes mc3_img2 {
+    0% {transform:translate(0,0);}
+    50% {transform:translate(100px,0);}
+    100% {transform:translate(0,0);}
+}
+.i1 {position:relative; z-index:5; width:910px; min-width:auto; margin:0 -30px 0 -167px;}
+.i2 {bottom:110px; right:20px; z-index:1;}
+.i3 {bottom:270px; right:540px; z-index:2;}
+.i4 {bottom:360px; right:425px; z-index:3; animation-delay:.3s;}
+.i5 {bottom:160px; right:220px; z-index:4; animation-delay:.6s;}
