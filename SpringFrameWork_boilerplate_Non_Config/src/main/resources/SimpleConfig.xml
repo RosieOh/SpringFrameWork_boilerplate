@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:p="http://www.springframework.org/schema/p"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+
+    <bean id="score" class="kr.co.teaspoon.dto.Score" />
+
+    <!-- 필드 주입 -->
+    <bean id="simple1" class="kr.co.teaspoon.dto.Simple1" p:no="7" p:name="김기태" p:score1-ref="score"/>
+
+    <!-- 생성자 주입 -->
+    <bean id="simple2" class="kr.co.teaspoon.dto.Simple2">
+        <constructor-arg value="7" />
+        <constructor-arg value="김기태" />
+        <constructor-arg ref="score" />
+    </bean>
+
+    <!-- 셋터 주입 -->
+    <bean id="simple3" class="kr.co.teaspoon.dto.Simple3">
+        <property name="no" value="7" />
+        <property name="name" value="김기태" />
+        <property name="score3" ref="score" />
+    </bean>
+</beans>
